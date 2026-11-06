@@ -1,5 +1,6 @@
-# downloads do site (builds, páginas, cookies, sessão) — NUNCA publicar
-spiders/
+# downloads do site (builds, páginas) — versionados no repo privado
+# (as credenciais yahoo_cookies.txt/yahoo_session.json não existem mais no download atual;
+#  se um download novo trouxer credenciais, adicioná-las aqui antes do commit)
 # temporários
 tmp/
 __pycache__/
