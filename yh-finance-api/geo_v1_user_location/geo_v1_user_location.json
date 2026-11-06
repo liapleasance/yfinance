@@ -1,0 +1,57 @@
+{
+  "url": "https://loc.yahoo.com/geo/v1/user/location?optionalfields=connection",
+  "result": {
+    {
+      "locations": [
+        {
+          "code": "AAEBAQJERQIEAMOmqgMEAAb3QAQEAL_-MAcEACPHpQgEAWVvAAoETEdQRA",
+          "source": "IP_ADDRESS",
+          "locale": "en_US",
+          "woe": {
+            "id": 12822186,
+            "name": "49100",
+            "timezone": [
+              {
+                "name": "America/Maceio",
+                "woeid": 56043572,
+                "offset": "-03:00"
+              }
+            ],
+            "type": {
+              "code": 11,
+              "name": "zip"
+            }
+          },
+          "coords": {
+            "latitude": -10.965201,
+            "longitude": -37.217801,
+            "radius": 15810
+          },
+          "confidence": 0.9,
+          "isEU": false,
+          "canonical": "woe",
+          "timestamp": 1790285806
+        }
+      ],
+      "connection": {
+        "proxy": "unknown",
+        "carrier": "rede nacional de ensino e pesquisa",
+        "domain": "ufs.br",
+        "typeid": 2055001,
+        "type": "dsl",
+        "asn": 1916,
+        "speed": "medium",
+        "ipAddress": "200.17.141.3",
+        "ipVersion": "4"
+      },
+      "responseMetaData": {
+        "processingTime": 2,
+        "total": 1,
+        "isUserConsentCheckRequired": false
+      },
+      "jurisdiction": [
+        "LGPD"
+      ]
+    }
+  }
+}

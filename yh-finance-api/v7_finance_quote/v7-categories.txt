@@ -1,0 +1,528 @@
+  // ==========================================================================
+  // 2 · NÚCLEO COMUM — campos que vêm em TODOS os tipos, mesmo sem pedir nada
+  //     (projeção padrão: chamada sem o parâmetro `fields`)
+  // ==========================================================================
+  commonFields: {
+    identification: [
+      "symbol",                        // Ticker normalizado em maiúsculas (ex.: AAPL, BTC-USD, ^GSPC)
+      "shortName",                     // Nome curto de exibição
+      "quoteType",                     // Classe do ativo (EQUITY, ETF, MUTUALFUND, MONEYMARKET,
+                                       //   CRYPTOCURRENCY, CURRENCY, FUTURE, INDEX, PRIVATE_COMPANY, ALTSYMBOL)
+      "typeDisp",                      // Rótulo legível da classe ("Equity", "Etf", "Cryptocurrency"…)
+      "currency",                      // Moeda de cotação (USD, BRL, EUR…)
+      "exchange",                      // Sigla da bolsa/provedor (NMS, SAO, CCC, CMX, NYB…)
+      "fullExchangeName",              // Nome por extenso da bolsa ("NasdaqGS", "São Paulo", "CCC", "COMEX")
+      "market",                        // Mercado do item (us_market, br_market, ccc_market, ccy_market, us24_market…)
+      "region",                        // Região do item (US, BR…)
+      "language",                      // Idioma das strings, segue o parâmetro lang ("en-US")
+      "corporateActions",              // Array de eventos corporativos (geralmente vazio)
+    ],
+    marketSession: [
+      "marketState",                   // Fase da sessão: PRE · REGULAR · POST · POSTPOST · CLOSED
+      "exchangeTimezoneName",          // Fuso horário IANA da bolsa ("America/New_York", "UTC"…)
+      "exchangeTimezoneShortName",     // Sigla do fuso local ("EDT", "BRT"…)
+      "gmtOffSetMilliseconds",         // Deslocamento GMT em milissegundos
+      "exchangeDataDelayedBy",         // Atraso dos dados em minutos (0 = tempo real)
+      "sourceInterval",                // Intervalo da fonte de dados, em minutos
+      "quoteSourceName",               // Fonte da cotação ("Delayed Quote", "Free, Real-Time"…)
+    ],
+    pricing: [
+      "regularMarketPrice",            // Último preço negociado
+      "regularMarketTime",             // Epoch (s) da última cotação
+      "fulldayPrice",                  // Preço do dia completo (vem por padrão, sem precisar pedir)
+    ],
+    flags: [
+      "tradeable",                     // Booleano: permite execução via parceiros
+      "triggerable",                   // Booleano: aceita alertas de preço
+      "cryptoTradeable",               // Booleano: negociável como criptoativo (true apenas em pares cripto)
+      "customPriceAlertConfidence",    // Confiança do alerta: NONE · LOW · MEDIUM · HIGH
+      "esgPopulated",                  // Booleano: possui dados ESG populados
+      "hasPrePostMarketData",          // Booleano: existem dados de pré/pós pregão
+    ],
+  },
+
+  // ==========================================================================
+  // 2·b · CAMPOS FORA DA PROJEÇÃO PADRÃO — somente via parâmetro `fields`
+  // ==========================================================================
+  optionalFields: {
+    onDemand: [
+      "sharesShort",                   // Ações vendidas a descoberto (EQUITY; não vem no padrão)
+      "shortRatio",                    // Ratio de short (EQUITY; não vem no padrão)
+    ],
+    windows: [
+      "preMarketPrice",                // Preço do pré-mercado (EQUITY/ETF; só enquanto há dado da janela)
+      "preMarketChange",               // Variação absoluta do pré-mercado
+      "preMarketChangePercent",        // Variação % do pré-mercado
+      "preMarketTime",                 // Epoch (s) do último dado de pré-mercado
+      "overnightMarketPrice",          // Preço noturno (exige overnightPrice=true e janela ativa)
+      "overnightMarketChange",         // Variação absoluta noturna
+      "overnightMarketChangePercent",  // Variação % noturna
+      "overnightMarketTime",           // Epoch (s) do último dado noturno
+    ],
+  },
+
+  // ==========================================================================
+  // 3 · CAMPOS ACEITOS POR CATEGORIA — o que cada classe devolve além do núcleo
+  //     (projeção padrão: chamada sem o parâmetro `fields`)
+  // ==========================================================================
+  assetTypes: [
+    {
+      id: "EQUITY",                    // Ações corporativas (ex.: AAPL, PETR4.SA; ETFs brasileiros caem aqui)
+      total: 90,                       // campos no padrão (núcleo + adicionais)
+      fields: [
+        "longName",                    // Razão social / nome completo
+        "displayName",                 // Nome de exibição alternativo
+        "priceHint",                   // Casas decimais sugeridas
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "financialCurrency",           // Moeda contábil da empresa
+        "regularMarketChange",         // Variação absoluta do dia
+        "regularMarketChangePercent",  // Variação % do dia
+        "regularMarketPreviousClose",  // Fechamento anterior
+        "regularMarketOpen",           // Abertura da sessão
+        "regularMarketDayHigh",        // Máxima do dia
+        "regularMarketDayLow",         // Mínima do dia
+        "regularMarketDayRange",       // Faixa do dia como texto
+        "regularMarketVolume",         // Volume do dia
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "bid",                         // Melhor preço de compra
+        "bidSize",                     // Tamanho do lote no bid
+        "ask",                         // Melhor preço de venda
+        "askSize",                     // Tamanho do lote no ask
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        "fiftyDayAverage",             // Média móvel de 50 dias
+        "fiftyDayAverageChange",       // Variação absoluta vs média de 50 dias
+        "fiftyDayAverageChangePercent", // Variação % vs média de 50 dias
+        "twoHundredDayAverage",        // Média móvel de 200 dias
+        "twoHundredDayAverageChange",  // Variação absoluta vs média de 200 dias
+        "twoHundredDayAverageChangePercent", // Variação % vs média de 200 dias
+        "averageDailyVolume3Month",    // Volume médio diário dos últimos 3 meses
+        "averageDailyVolume10Day",     // Volume médio diário dos últimos 10 dias
+        "postMarketPrice",             // Preço do pós-mercado (persiste após a janela)
+        "postMarketChange",            // Variação absoluta do pós-mercado
+        "postMarketChangePercent",     // Variação % do pós-mercado
+        "postMarketTime",              // Epoch (s) do último dado de pós-mercado
+        "marketCap",                   // Capitalização de mercado
+        "sharesOutstanding",           // Ações em circulação
+        "impliedSharesOutstanding",    // Ações em circulação implícitas (derivada)
+        "sector",                      // Setor da empresa ("Technology"…)
+        "industry",                    // Indústria ("Consumer Electronics"…)
+        "epsTrailingTwelveMonths",     // EPS acumulado 12 meses
+        "epsForward",                  // EPS projetado
+        "epsCurrentYear",              // EPS do ano corrente
+        "priceEpsCurrentYear",         // Preço / EPS do ano
+        "forwardPE",                   // P/L projetado
+        "trailingPE",                  // P/L trailing
+        "bookValue",                   // Valor contábil por ação
+        "priceToBook",                 // Preço / valor contábil
+        "dividendRate",                // Dividendo anual por ação
+        "dividendYield",               // Dividend yield
+        "exDividendDate",              // Epoch (s) da data ex-dividendo
+        "dividendDate",                // Epoch (s) da data de pagamento
+        "trailingAnnualDividendRate",  // Dividendo anual trailing
+        "trailingAnnualDividendYield", // Yield anual trailing
+        "earningsTimestamp",           // Epoch (s) da próxima divulgação de balanço
+        "earningsTimestampStart",      // Epoch (s) do início da janela de balanços
+        "earningsTimestampEnd",        // Epoch (s) do fim da janela de balanços
+        "earningsCallTimestampStart",  // Epoch (s) do início da chamada de resultados
+        "earningsCallTimestampEnd",    // Epoch (s) do fim da chamada de resultados
+        "isEarningsDateEstimate",      // Booleano: a data de balanço é estimada
+        "averageAnalystRating",        // Consenso dos analistas ("2.2 - Buy")
+        "messageBoardId",              // ID do fórum do ativo
+      ],
+    },
+    {
+      id: "ETF",                       // ETFs dos EUA (ex.: SPY, TLT)
+      total: 80,
+      fields: [
+        "longName",                    // Nome longo do fundo
+        "displayName",                 // Nome de exibição alternativo
+        "priceHint",                   // Casas decimais sugeridas
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "financialCurrency",           // Moeda contábil do fundo
+        "regularMarketChange",         // Variação absoluta do dia
+        "regularMarketChangePercent",  // Variação % do dia
+        "regularMarketPreviousClose",  // Fechamento anterior
+        "regularMarketOpen",           // Abertura da sessão
+        "regularMarketDayHigh",        // Máxima do dia
+        "regularMarketDayLow",         // Mínima do dia
+        "regularMarketDayRange",       // Faixa do dia como texto
+        "regularMarketVolume",         // Volume do dia
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "bid",                         // Melhor preço de compra
+        "bidSize",                     // Tamanho do lote no bid
+        "ask",                         // Melhor preço de venda
+        "askSize",                     // Tamanho do lote no ask
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        "fiftyDayAverage",             // Média móvel de 50 dias
+        "fiftyDayAverageChange",       // Variação absoluta vs média de 50 dias
+        "fiftyDayAverageChangePercent", // Variação % vs média de 50 dias
+        "twoHundredDayAverage",        // Média móvel de 200 dias
+        "twoHundredDayAverageChange",  // Variação absoluta vs média de 200 dias
+        "twoHundredDayAverageChangePercent", // Variação % vs média de 200 dias
+        "averageDailyVolume3Month",    // Volume médio diário dos últimos 3 meses
+        "averageDailyVolume10Day",     // Volume médio diário dos últimos 10 dias
+        "postMarketPrice",             // Preço do pós-mercado (persiste após a janela)
+        "postMarketChange",            // Variação absoluta do pós-mercado
+        "postMarketChangePercent",     // Variação % do pós-mercado
+        "postMarketTime",              // Epoch (s) do último dado de pós-mercado
+        "netAssets",                   // Patrimônio líquido do fundo
+        "netExpenseRatio",             // Taxa de administração anual
+        "yield",                       // Yield do fundo
+        "ytdReturn",                   // Retorno acumulado no ano
+        "trailingThreeMonthReturns",   // Retorno dos últimos 3 meses
+        "navPrice",                    // Valor da cota patrimonial (NAV)
+        "trailingThreeMonthNavReturns",// Retorno do NAV em 3 meses
+        "trailingPE",                  // P/L trailing
+        "epsTrailingTwelveMonths",     // EPS acumulado 12 meses
+        "bookValue",                   // Valor contábil por ação
+        "priceToBook",                 // Preço / valor contábil
+        "sharesOutstanding",           // Ações em circulação
+        "dividendYield",               // Dividend yield
+        "trailingAnnualDividendRate",  // Dividendo anual trailing
+        "trailingAnnualDividendYield", // Yield anual trailing
+        "messageBoardId",              // ID do fórum do ativo
+      ],
+    },
+    {
+      id: "MUTUALFUND",                // Fundos mútuos (ex.: VFINX)
+      total: 65,
+      fields: [
+        "longName",                    // Nome longo do fundo
+        "priceHint",                   // Casas decimais sugeridas
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "financialCurrency",           // Moeda contábil do fundo
+        "regularMarketChange",         // Variação absoluta do dia
+        "regularMarketChangePercent",  // Variação % do dia
+        "regularMarketPreviousClose",  // Fechamento anterior
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        "fiftyDayAverage",             // Média móvel de 50 dias
+        "fiftyDayAverageChange",       // Variação absoluta vs média de 50 dias
+        "fiftyDayAverageChangePercent", // Variação % vs média de 50 dias
+        "twoHundredDayAverage",        // Média móvel de 200 dias
+        "twoHundredDayAverageChange",  // Variação absoluta vs média de 200 dias
+        "twoHundredDayAverageChangePercent", // Variação % vs média de 200 dias
+        "averageDailyVolume3Month",    // Volume médio diário dos últimos 3 meses
+        "averageDailyVolume10Day",     // Volume médio diário dos últimos 10 dias
+        "netAssets",                   // Patrimônio líquido
+        "netExpenseRatio",             // Taxa de administração
+        "yield",                       // Yield do fundo
+        "ytdReturn",                   // Retorno acumulado no ano
+        "trailingThreeMonthReturns",   // Retorno dos últimos 3 meses
+        "trailingPE",                  // P/L trailing
+        "epsTrailingTwelveMonths",     // EPS acumulado 12 meses
+        "bookValue",                   // Valor contábil por ação
+        "priceToBook",                 // Preço / valor contábil
+        "dividendRate",                // Dividendo anual por ação
+        "dividendYield",               // Dividend yield
+        "dividendsPerShare",           // Dividendos por ação
+        "trailingAnnualDividendRate",  // Dividendo anual trailing
+        "trailingAnnualDividendYield", // Yield anual trailing
+        "messageBoardId",              // ID do fórum do ativo
+        // Sem cotação contínua: sem open/dayHigh/dayLow/dayRange/volume e sem navPrice intradiário
+      ],
+    },
+    {
+      id: "MONEYMARKET",               // Fundos de liquidez (ex.: SPAXX)
+      total: 33,
+      fields: [
+        "longName",                    // Nome longo do fundo
+        "shortName",                   // (adicionado pelo servidor para esta classe)
+        "displayName",                 // Nome de exibição alternativo
+        "priceHint",                   // Casas decimais sugeridas
+        "netAssets",                   // Patrimônio líquido
+        "trailingAnnualDividendRate",  // Dividendo anual trailing
+        "messageBoardId",              // ID do fórum do ativo
+        // NAV estável: sem médias, sem 52 semanas, sem variação de preço
+      ],
+    },
+    {
+      id: "CRYPTOCURRENCY",            // Criptoativos (ex.: BTC-USD)
+      total: 70,
+      fields: [
+        "longName",                    // Nome longo ("Bitcoin USD")
+        "shortName",                   // (adicionado pelo servidor para esta classe)
+        "priceHint",                   // Casas decimais sugeridas
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "regularMarketChange",         // Variação absoluta do dia
+        "regularMarketChangePercent",  // Variação % do dia
+        "regularMarketPreviousClose",  // Fechamento anterior
+        "regularMarketOpen",           // Abertura das últimas 24 h
+        "regularMarketDayHigh",        // Máxima das últimas 24 h
+        "regularMarketDayLow",         // Mínima das últimas 24 h
+        "regularMarketDayRange",       // Faixa de 24 h como texto
+        "regularMarketVolume",         // Volume do dia
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        "fiftyDayAverage",             // Média móvel de 50 dias
+        "fiftyDayAverageChange",       // Variação absoluta vs média de 50 dias
+        "fiftyDayAverageChangePercent", // Variação % vs média de 50 dias
+        "twoHundredDayAverage",        // Média móvel de 200 dias
+        "twoHundredDayAverageChange",  // Variação absoluta vs média de 200 dias
+        "twoHundredDayAverageChangePercent", // Variação % vs média de 200 dias
+        "averageDailyVolume3Month",    // Volume médio diário dos últimos 3 meses
+        "averageDailyVolume10Day",     // Volume médio diário dos últimos 10 dias
+        "marketCap",                   // Capitalização de mercado
+        "circulatingSupply",           // Oferta em circulação
+        "totalSupply",                 // Oferta total emitida
+        "maxSupply",                   // Oferta máxima programada (BTC = 21000000)
+        "volume24Hr",                  // Volume financeiro das últimas 24 h
+        "volumeAllCurrencies",         // Volume consolidado em todas as exchanges/moedas
+        "fromCurrency",                // Criptoativo base ("BTC")
+        "toCurrency",                  // Símbolo do par de cotação ("USD=X")
+        "startDate",                   // Epoch (s) da data de gênese/listagem
+        "coinImageUrl",                // URL do ícone da moeda
+        "coinMarketCapLink",           // Link da moeda no CoinMarketCap
+        "logoUrl",                     // URL do logo do projeto
+        "lastMarket",                  // Última mercado/exchange negociadora
+        // Sem bid/ask (mesmo pedindo) e sem pré/pós-mercado
+      ],
+    },
+    {
+      id: "CURRENCY",                  // Pares de câmbio (ex.: EURUSD=X, BRL=X)
+      total: 61,
+      fields: [
+        "longName",                    // Nome longo do par ("EUR/USD")
+        "priceHint",                   // Casas decimais sugeridas
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "regularMarketChange",         // Variação absoluta do dia
+        "regularMarketChangePercent",  // Variação % do dia
+        "regularMarketPreviousClose",  // Fechamento anterior
+        "regularMarketOpen",           // Abertura da sessão
+        "regularMarketDayHigh",        // Máxima da sessão
+        "regularMarketDayLow",         // Mínima da sessão
+        "regularMarketDayRange",       // Faixa do dia como texto
+        "regularMarketVolume",         // Volume do dia (0 quando a fonte não informa)
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "bid",                         // Melhor preço de compra
+        "bidSize",                     // Tamanho do lote no bid (0 quando não informado)
+        "ask",                         // Melhor preço de venda
+        "askSize",                     // Tamanho do lote no ask (0 quando não informado)
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        "fiftyDayAverage",             // Média móvel de 50 dias
+        "fiftyDayAverageChange",       // Variação absoluta vs média de 50 dias
+        "fiftyDayAverageChangePercent", // Variação % vs média de 50 dias
+        "twoHundredDayAverage",        // Média móvel de 200 dias
+        "twoHundredDayAverageChange",  // Variação absoluta vs média de 200 dias
+        "twoHundredDayAverageChangePercent", // Variação % vs média de 200 dias
+        "averageDailyVolume3Month",    // Volume médio diário dos últimos 3 meses
+        "averageDailyVolume10Day",     // Volume médio diário dos últimos 10 dias
+        "messageBoardId",              // ID do fórum do ativo
+      ],
+    },
+    {
+      id: "FUTURE",                    // Contratos futuros (ex.: GC=F, CL=F)
+      total: 66,
+      fields: [
+        "shortName",                   // (adicionado pelo servidor para esta classe)
+        "priceHint",                   // Casas decimais sugeridas
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "regularMarketChange",         // Variação absoluta do dia
+        "regularMarketChangePercent",  // Variação % do dia
+        "regularMarketPreviousClose",  // Fechamento anterior
+        "regularMarketOpen",           // Abertura da sessão
+        "regularMarketDayHigh",        // Máxima do dia
+        "regularMarketDayLow",         // Mínima do dia
+        "regularMarketDayRange",       // Faixa do dia como texto
+        "regularMarketVolume",         // Volume de contratos negociados
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "bid",                         // Melhor preço de compra
+        "bidSize",                     // Tamanho do lote no bid
+        "ask",                         // Melhor preço de venda
+        "askSize",                     // Tamanho do lote no ask
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        "fiftyDayAverage",             // Média móvel de 50 dias
+        "fiftyDayAverageChange",       // Variação absoluta vs média de 50 dias
+        "fiftyDayAverageChangePercent", // Variação % vs média de 50 dias
+        "twoHundredDayAverage",        // Média móvel de 200 dias
+        "twoHundredDayAverageChange",  // Variação absoluta vs média de 200 dias
+        "twoHundredDayAverageChangePercent", // Variação % vs média de 200 dias
+        "averageDailyVolume3Month",    // Volume médio diário dos últimos 3 meses
+        "averageDailyVolume10Day",     // Volume médio diário dos últimos 10 dias
+        "expireDate",                  // Epoch (s) do vencimento do contrato
+        "expireIsoDate",               // Vencimento em ISO 8601 ("2026-12-29T00:00:00Z")
+        "openInterest",                // Contratos em aberto
+        "underlyingSymbol",            // Contrato específico na bolsa ("GCZ26.CMX")
+        "underlyingExchangeSymbol",    // Símbolo do subjacente com exchange
+        "headSymbolAsString",          // Símbolo-base como string ("GC=F")
+        "contractSymbol",              // Booleano: é contrato individual (vs contínuo)
+        "longName",                    // (adicionado pelo servidor para esta classe)
+      ],
+    },
+    {
+      id: "INDEX",                     // Índices e taxas (ex.: ^GSPC, ^TNX — taxas são INDEX)
+      total: 61,
+      fields: [
+        "longName",                    // Nome longo do índice
+        "shortName",                   // (adicionado pelo servidor para esta classe)
+        "priceHint",                   // Casas decimais sugeridas
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "regularMarketChange",         // Variação absoluta do dia (pontos do índice)
+        "regularMarketChangePercent",  // Variação % do dia
+        "regularMarketPreviousClose",  // Fechamento anterior
+        "regularMarketOpen",           // Abertura da sessão
+        "regularMarketDayHigh",        // Máxima do dia
+        "regularMarketDayLow",         // Mínima do dia
+        "regularMarketDayRange",       // Faixa do dia como texto
+        "regularMarketVolume",         // Volume do dia
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "bid",                         // Melhor preço de compra (sintético)
+        "bidSize",                     // Tamanho do lote no bid (0 quando não informado)
+        "ask",                         // Melhor preço de venda (sintético)
+        "askSize",                     // Tamanho do lote no ask (0 quando não informado)
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        "fiftyDayAverage",             // Média móvel de 50 dias
+        "fiftyDayAverageChange",       // Variação absoluta vs média de 50 dias
+        "fiftyDayAverageChangePercent", // Variação % vs média de 50 dias
+        "twoHundredDayAverage",        // Média móvel de 200 dias
+        "twoHundredDayAverageChange",  // Variação absoluta vs média de 200 dias
+        "twoHundredDayAverageChangePercent", // Variação % vs média de 200 dias
+        "averageDailyVolume3Month",    // Volume médio diário dos últimos 3 meses
+        "averageDailyVolume10Day",     // Volume médio diário dos últimos 10 dias
+        "messageBoardId",              // ID do fórum do ativo
+      ],
+    },
+    {
+      id: "PRIVATE_COMPANY",           // Empresas pré-IPO (ex.: ANTH.PVT, OPAI.PVT)
+      total: 41,
+      fields: [
+        "longName",                    // Nome longo da empresa
+        "shortName",                   // (adicionado pelo servidor para esta classe)
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "regularMarketChange",         // Variação absoluta vs última rodada
+        "regularMarketChangePercent",  // Variação % vs última rodada
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        // Campos de rodada privada (companyName, latestImpliedValuation, fundingToDate,
+        // latestFundingDate, latestAmountRaised, latestShareClass) pertencem ao caminho
+        // de listas de categorias, não a esta cotação
+      ],
+    },
+    {
+      id: "ALTSYMBOL",                 // Símbolos alternativos/deslistados (ex.: CT=F)
+      total: 56,
+      fields: [
+        "priceHint",                   // Casas decimais sugeridas
+        "firstTradeDateMilliseconds",  // Epoch (ms) do primeiro registro histórico
+        "regularMarketChange",         // Variação absoluta do dia
+        "regularMarketChangePercent",  // Variação % do dia
+        "regularMarketPreviousClose",  // Fechamento anterior
+        "regularMarketDayHigh",        // Máxima do dia
+        "regularMarketDayLow",         // Mínima do dia
+        "regularMarketDayRange",       // Faixa do dia como texto
+        "regularMarketVolume",         // Volume do dia
+        "fulldayChange",               // Variação absoluta do dia completo
+        "fulldayChangePercent",        // Variação % do dia completo
+        "bid",                         // Melhor preço de compra
+        "ask",                         // Melhor preço de venda
+        "fiftyTwoWeekHigh",            // Máxima em 52 semanas
+        "fiftyTwoWeekLow",             // Mínima em 52 semanas
+        "fiftyTwoWeekRange",           // Faixa de 52 semanas como texto
+        "fiftyTwoWeekHighChange",      // Distância absoluta da máxima de 52 semanas
+        "fiftyTwoWeekHighChangePercent", // Distância percentual da máxima de 52 semanas
+        "fiftyTwoWeekLowChange",       // Distância absoluta da mínima de 52 semanas
+        "fiftyTwoWeekLowChangePercent", // Distância percentual da mínima de 52 semanas
+        "fiftyTwoWeekChangePercent",   // Variação % acumulada em 52 semanas
+        "fiftyDayAverage",             // Média móvel de 50 dias
+        "fiftyDayAverageChange",       // Variação absoluta vs média de 50 dias
+        "fiftyDayAverageChangePercent", // Variação % vs média de 50 dias
+        "twoHundredDayAverage",        // Média móvel de 200 dias
+        "twoHundredDayAverageChange",  // Variação absoluta vs média de 200 dias
+        "twoHundredDayAverageChangePercent", // Variação % vs média de 200 dias
+        "averageDailyVolume3Month",    // Volume médio diário dos últimos 3 meses
+        "averageDailyVolume10Day",     // Volume médio diário dos últimos 10 dias
+        "underlyingSymbol",            // Referência do símbolo original
+        // Sem bidSize/askSize e sem fulldayChange/Percent neste tipo
+      ],
+    },
+  ],
+
+  // ==========================================================================
+  // 3·b · CAMPOS DESTRavados por flags da requisição (campo → parâmetro)
+  // ==========================================================================
+  flagFields: {
+    "topPickThisMonth=true": [
+      "stockPickProvider",             // Provedor da recomendação editorial (ex.: Morningstar)
+      "stockPickRating",               // Nota/rating da recomendação
+      "stockPickCTA",                  // Texto do chamado para ação
+      "stockPickID",                   // Identificador da recomendação
+      "stockPickURL",                  // URL da recomendação
+    ],
+    "checkUnusualOptionsActivity=true": [
+      "hasUnusualOptionsActivity",     // Booleano: fluxo atípico de opções (qualquer classe com opções)
+    ],
+    "useLogoDevLogo=true": [
+      "logoUrl",                       // URL do logo da empresa
+      "logoUrlDarkMode",               // URL do logo em modo escuro
+      "companyLogoUrl",                // URL alternativa do logo
+    ],
+    "appendUnderlyingQuote=true": [
+      "(+1 item em result)",           // Anexa a cotação do contrato de vencimento imediato
+                                       //   (ex.: GC=F também devolve GCZ26.CMX)
+    ],
+  },
+

@@ -1,0 +1,9 @@
+# Compiled Svelte 4 / SvelteKit patterns recognised
+
+- `function create_fragment(ctx){ return { c(){create}, l(){claim}, h(){attrs}, m(target,anchor){mount}, p(ctx,dirty){update}, i(local){intro}, o(local){outro}, d(detaching){destroy} } }` - the one-letter fragment methods are annotated with their lifecycle meaning (comments only).
+- `class X extends SvelteComponent { constructor(opts){ super(); init(this, opts, instance, create_fragment, safe_not_equal, props) } }` - component classes; the call to `init` (chunk found by `detect_roles.mjs`) locates components.
+- `component_subscribe($$self, store, cb)` (chunk name varies per build; found by `detect_roles.mjs`) - store subscriptions.
+- `entry/app.<hash>.js` exports `nodes[]` (lazy imports of `nodes/N.<hash>.js` — but rare slots import `chunks/*.js`: Vite fused the node into a chunk, so parse the array positionally), `server_loads` (the LAYOUTS with a `+layout.server.js` load), and `dictionary` (route -> [leaf, layouts, errors]): source of ROUTES.md / KIT_INTEL.md. Decoding is VERIFIED (see `kit-internals.md`): a NEGATIVE leaf (or `~N`) = the page HAS a server load, node = `~value` (bitwise: `-184` -> 183; `Math.abs` is off by one); the root layout (node 0) and root error (node 1) are IMPLICIT — the runtime prepends them, current dictionaries never list them; holes (`,,`) mean "no node at that level".
+- `nodes/N.*.js` default export = page/layout component; other directories of the site (`webcore`, `yimg`, ...) are out of scope: the skill never reads them.
+- `entry/start.<hash>.js` is one line: `import{s as t}from"../chunks/<kit client>.js";export{t as start};` - the imported chunk is the SvelteKit client (router, hydration, link interception). Exports like `goto`, `invalidateAll`, `pushState`, `getStores` are its public API.
+Only Svelte 4 compiled output is assumed; Svelte 5 builds need new patterns.

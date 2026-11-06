@@ -1,0 +1,1 @@
+function i(e,t,a,n,s,r,o=null,l=[-1]){const i=e.$$={fragment:null,ctx:[],props:r,update:()=>{},not_equal:s,bound:Object.create(null),on_mount:[],on_destroy:[],on_disconnect:[],before_update:[],after_update:[],context:new Map(t.context||[]),callbacks:Object.create(null),dirty:l,skip_bound:!1,root:t.target};}export{i};

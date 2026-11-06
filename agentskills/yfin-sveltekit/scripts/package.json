@@ -1,0 +1,20 @@
+{
+  "name": "yfin-sveltekit-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Helper scripts for the yfin-sveltekit skill (deobfuscation + verification of SvelteKit/Vite production builds).",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@babel/generator": "8.0.6",
+    "@babel/parser": "8.0.7",
+    "@babel/traverse": "8.0.7",
+    "@babel/types": "8.0.6",
+    "@wakaru/cli": "1.14.0",
+    "esbuild": "0.25.0",
+    "playwright": "1.56.0",
+    "prettier": "3.9.10"
+  }
+}

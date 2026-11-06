@@ -1,0 +1,1 @@
+Contains code bundled from @sveltejs/kit 2.8.0 (MIT, https://github.com/sveltejs/kit) used only as a test input for kit_names.mjs.

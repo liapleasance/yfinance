@@ -1,0 +1,9 @@
+# downloads do site (builds, páginas, cookies, sessão) — NUNCA publicar
+spiders/
+# temporários
+tmp/
+__pycache__/
+*.pyc
+outputs/
+# suíte da skill (fixtures de mutação, geradas localmente)
+yfin-sveltekit/scripts/tests/

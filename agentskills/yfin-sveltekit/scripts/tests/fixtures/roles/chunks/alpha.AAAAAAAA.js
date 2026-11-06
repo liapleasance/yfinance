@@ -1,0 +1,1 @@
+function $(t,e){return t!=t?e==e:t!==e||t&&typeof t=="object"||typeof t=="function"}function B(t,e,n){t.$$.on_destroy.push(M(e,n))}function M(t,e){return t.subscribe(e)}function z(t,e){return t+e}export{B as q,$ as s,z as zz};
